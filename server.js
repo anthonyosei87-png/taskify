@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 1. Create the Database Connection Pool
+// Database Connection Pool with SSL requirements for Railway
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,      
@@ -21,38 +21,19 @@ const db = mysql.createPool({
     }
 });
 
-// 2. Test Connection & Automatically Create Table if missing
+// Simple startup status validation
 db.getConnection((err, connection) => {
     if (err) {
         console.error('Database connection failed:', err.message);
     } else {
-        console.log('Successfully connected to Railway MySQL pool.');
-        
-        // Create table query
-        const createTableQuery = `
-            CREATE TABLE IF NOT EXISTS tasks (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                title VARCHAR(255) NOT NULL,
-                description TEXT,
-                is_completed TINYINT(1) DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        `;
-        
-        connection.query(createTableQuery, (tableErr) => {
-            connection.release();
-            if (tableErr) {
-                console.error('Error verifying/creating tasks table:', tableErr.message);
-            } else {
-                console.log('Database schema verified: "tasks" table is ready.');
-            }
-        });
+        console.log('Successfully verified active live connection pool.');
+        connection.release();
     }
 });
 
-// 3. GET all tasks
+// GET all tasks (Removed ORDER BY created_at to avoid database column errors)
 app.get('/api/tasks', (req, res) => {
-    db.query('SELECT * FROM tasks ORDER BY created_at DESC', (err, results) => {
+    db.query('SELECT * FROM tasks', (err, results) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
@@ -60,7 +41,7 @@ app.get('/api/tasks', (req, res) => {
     });
 });
 
-// 4. POST a new task
+// POST a new task
 app.post('/api/tasks', (req, res) => {
     const { title, description } = req.body;
     if (!title) {
@@ -75,7 +56,7 @@ app.post('/api/tasks', (req, res) => {
     });
 });
 
-// 5. PUT (Toggle complete status)
+// PUT (Toggle complete status)
 app.put('/api/tasks/:id', (req, res) => {
     const { id } = req.params;
     const { is_completed } = req.body;
@@ -88,7 +69,7 @@ app.put('/api/tasks/:id', (req, res) => {
     });
 });
 
-// 6. DELETE a task
+// DELETE a task
 app.delete('/api/tasks/:id', (req, res) => {
     const { id } = req.params;
     
@@ -100,7 +81,6 @@ app.delete('/api/tasks/:id', (req, res) => {
     });
 });
 
-// Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
