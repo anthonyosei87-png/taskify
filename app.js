@@ -10,10 +10,20 @@ document.addEventListener('DOMContentLoaded', fetchTasks);
 
 async function fetchTasks() {
     try {
-        const response = await fetch(API_URL);
-        const tasks = await response.json();
+        const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
         
+        const tasks = await response.json();
         tasksContainer.innerHTML = ''; // Clear container
+
+        if (!response.ok) {
+            throw new Error(`Server returned status ${response.status}`);
+        }
 
         if (tasks.length === 0) {
             tasksContainer.innerHTML = '<p class="loading">No tasks found. Add one above!</p>';
@@ -39,7 +49,8 @@ async function fetchTasks() {
             tasksContainer.appendChild(taskElement);
         });
     } catch (error) {
-        tasksContainer.innerHTML = '<p class="error-msg">Error loading tasks. Is backend running?</p>';
+        console.error("Fetch tasks failed:", error);
+        tasksContainer.innerHTML = `<p class="error-msg">Error loading tasks. Is backend running?</p>`;
     }
 }
 
@@ -61,7 +72,10 @@ taskForm.addEventListener('submit', async (e) => {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json' 
+            },
             body: JSON.stringify({ title, description })
         });
 
@@ -71,10 +85,11 @@ taskForm.addEventListener('submit', async (e) => {
             fetchTasks(); // Refresh list
         } else {
             const data = await response.json();
-            errorTitle.textContent = data.error;
+            errorTitle.textContent = data.error || "Failed to add task";
         }
     } catch (error) {
         console.error("Error creating task:", error);
+        errorTitle.textContent = "Cannot connect to server API backend.";
     }
 });
 
@@ -83,7 +98,10 @@ async function toggleTask(id, currentStatus) {
     try {
         await fetch(`${API_URL}/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json' 
+            },
             body: JSON.stringify({ is_completed: newStatus })
         });
         fetchTasks();
@@ -96,7 +114,13 @@ async function deleteTask(id) {
     if (!confirm("Are you sure you want to delete this task?")) return;
 
     try {
-        await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        await fetch(`${API_URL}/${id}`, { 
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
         fetchTasks();
     } catch (error) {
         console.error("Error deleting task:", error);
