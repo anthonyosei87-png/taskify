@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api/tasks';
+const API_URL = 'https://taskify-backend-c1nm.onrender.com/api/tasks';
 
 const taskForm = document.getElementById('task-form');
 const taskTitleInput = document.getElementById('task-title');
