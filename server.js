@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 1. Create the Database Connection Pool
+// 1. Create the Database Connection Pool with SSL requirements for Railway
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,      
@@ -15,7 +15,10 @@ const db = mysql.createPool({
     port: process.env.DB_PORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 // 2. Test Connection Pool on Startup
@@ -23,7 +26,7 @@ db.getConnection((err, connection) => {
     if (err) {
         console.error('Database connection failed:', err.message);
     } else {
-        console.log('Successfully connected to Railway MySQL pool.');
+        console.log('Successfully connected to Railway MySQL pool with SSL.');
         connection.release();
     }
 });
