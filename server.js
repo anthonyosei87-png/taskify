@@ -1,71 +1,21 @@
-const express = require('express');
-const mysql = require('mysql2');
-const cors = require('cors');
-
-const app = express();
-app.use(cors());
-app.use(express.json()); 
-
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',      
-    password: '',      
-    database: 'taskify_db'
+// 1. Switch from createConnection to createPool
+const db = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',      
+    password: process.env.DB_PASSWORD || '',      
+    database: process.env.DB_NAME || 'taskify_db',
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-db.connect((err) => {
+// 2. Test the pool connection on startup
+db.getConnection((err, connection) => {
     if (err) {
-        console.error('Database connection failed: ' + err.stack);
-        return;
+        console.error('Database connection failed:', err.message);
+    } else {
+        console.log('Connected to MySQL database pool.');
+        connection.release(); // Return the connection back to the pool
     }
-    console.log('Connected to MySQL database.');
-});
-
-
-app.get('/api/tasks', (req, res) => {
-    const sql = "SELECT * FROM tasks ORDER BY created_at DESC";
-    db.query(sql, (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
-    });
-});
-
-app.post('/api/tasks', (req, res) => {
-    const { title, description } = req.body;
-
-    if (!title || title.trim() === "") {
-        return res.status(400).json({ error: "Task title is required." });
-    }
-
-    const sql = "INSERT INTO tasks (title, description) VALUES (?, ?)";
-    db.query(sql, [title, description], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.status(201).json({ id: result.insertId, title, description, is_completed: 0 });
-    });
-});
-
-app.put('/api/tasks/:id', (req, res) => {
-    const { id } = req.params;
-    const { is_completed } = req.body;
-
-    const sql = "UPDATE tasks SET is_completed = ? WHERE id = ?";
-    db.query(sql, [is_completed, id], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Task updated successfully." });
-    });
-});
-
-app.delete('/api/tasks/:id', (req, res) => {
-    const { id } = req.params;
-
-    const sql = "DELETE FROM tasks WHERE id = ?";
-    db.query(sql, [id], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Task deleted successfully." });
-    });
-});
-
-const PORT = 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
 });
