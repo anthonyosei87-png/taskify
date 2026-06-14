@@ -1,0 +1,136 @@
+:root {
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --background: #f3f4f6;
+    --card: #ffffff;
+    --text: #1f2937;
+    --danger: #ef4444;
+    --success: #10b981;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    background: var(--card);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    text-align: center;
+    margin-top: 0;
+}
+
+h2 {
+    font-size: 1.2rem;
+    margin-top: 30px;
+    color: #6b7280;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+input[type="text"], textarea {
+    width: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+input:focus, textarea:focus {
+    outline: 2px solid var(--primary);
+}
+
+.error-msg {
+    color: var(--danger);
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 5px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Task Item Styling */
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9fafb;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--primary);
+    transition: all 0.2s ease;
+}
+
+.task-item.completed {
+    border-left-color: var(--success);
+    opacity: 0.6;
+}
+
+.task-item.completed .task-text-title {
+    text-decoration: line-through;
+}
+
+.task-info {
+    flex-grow: 1;
+    margin-right: 15px;
+}
+
+.task-text-title {
+    font-weight: 600;
+    margin: 0;
+}
+
+.task-text-desc {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin: 4px 0 0 0;
+}
+
+.task-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-check, .btn-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 5px;
+    width: auto;
+}
+
+.btn-check { color: var(--success); }
+.btn-delete { color: var(--danger); }
